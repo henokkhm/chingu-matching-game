@@ -1,7 +1,29 @@
 import Head from "next/head";
 import Image from "next/image";
+import React, { useEffect } from "react";
+
+import getImagesData from "./api/get_images";
 
 export default function Home() {
+  const [images, setImages] = React.useState<
+    null | { url: string; id: number }[]
+  >();
+
+  useEffect(() => {
+    const fetchImagesData = async () => {
+      const response = await fetch(`/api/get_images?numImages=16`);
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const { images } = await response.json();
+      setImages(images);
+    };
+
+    fetchImagesData();
+  }, []);
+
   return (
     <div>
       <Head>
@@ -10,10 +32,20 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <h1 className="bg-red-200 text-3xl font-bold  underline ">
-          Hello world!
-        </h1>
+      <main className="flex min-h-screen items-center justify-center">
+        <div className="grid max-w-md grid-cols-4 gap-2">
+          {images &&
+            images.map((image) => (
+              <Image
+                src={image.url}
+                key={image.id}
+                alt=""
+                width="100"
+                height="100"
+                className=" duration:200 border-2 border-purple-600 hover:scale-105"
+              />
+            ))}
+        </div>
       </main>
     </div>
   );

@@ -13,13 +13,19 @@ type ErrorMessageType = {
   message: string;
 };
 
-export default function handler(
+export default function getImagesData(
   req: NextApiRequest,
   res: NextApiResponse<ImageDataType | ErrorMessageType>
 ) {
   if (req.method === "GET") {
-    if (req.body.numImages) {
-      const { numImages } = req.body;
+    if (req.query.numImages) {
+      const numImages = Number(req.query.numImages);
+      if (isNaN(numImages)) {
+        res.status(400).json({
+          message:
+            "Please provide an integer for the number of images you want",
+        });
+      }
       const imageIds = generateRandArr(1, 906, numImages);
       const ImageData = imageIds.map((id) => ({
         url: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
